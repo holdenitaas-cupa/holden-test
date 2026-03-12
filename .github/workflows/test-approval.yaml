@@ -34,13 +34,13 @@ jobs:
           echo "╚═══════════════════════════════════════╝"
       
       - name: Check if prod environment
-        if: github.event.deployment.environment == 'production'
+        if: github.event.deployment.environment == 'prod'
         run: |
           echo "🎯 This is a PROD deployment!"
           echo "   Status: ${{ github.event.deployment_status.state }}"
       
       - name: Check if NOT prod environment
-        if: github.event.deployment.environment != 'production'
+        if: github.event.deployment.environment != 'prod'
         run: |
           echo "ℹ️  This is NOT a prod deployment"
           echo "   Environment: ${{ github.event.deployment.environment }}"
