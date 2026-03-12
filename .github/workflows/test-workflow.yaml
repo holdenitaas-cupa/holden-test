@@ -9,8 +9,7 @@ jobs:
   deploy_prod:
     name: Deploy to prod
     runs-on: ubuntu-latest
-    environment:
-      name: prod
+    environment: prod
 
     steps:
         - name: Say hello
