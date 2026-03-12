@@ -6,7 +6,9 @@ on:
 jobs:
   test-trigger:
     runs-on: ubuntu-latest
-    
+    if: |
+     github.event.deployment.environment == 'prod' &&
+     github.event.deployment_status.state == 'in_progress'
     steps:
       - name: Show all deployment info
         run: |
