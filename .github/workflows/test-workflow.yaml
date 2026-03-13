@@ -7,9 +7,9 @@ on:
 
 jobs:
   deploy_prod:
-    name: Deploy to stage
+    name: Deploy to prod
     runs-on: ubuntu-latest
-    environment: stage
+    environment: prod
 
     steps:
         - name: Say hello
