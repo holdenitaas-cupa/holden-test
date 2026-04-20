@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
      github.event.deployment.environment == 'prod' &&
-     github.event.deployment_status.state == 'in_progress'
+     github.event.deployment_status.state == 'success'
     steps:
       - name: Log deployment approval info
         run: |
