@@ -6,6 +6,9 @@ on:
 jobs:
   test-trigger:
     runs-on: ubuntu-latest
+    concurrency:
+       group: deploy-prod-${{ github.event.deployment.id }}
+       cancel-in-progress: true
     if: |
      github.event.deployment.environment == 'prod' &&
      github.event.deployment_status.state == 'success'
