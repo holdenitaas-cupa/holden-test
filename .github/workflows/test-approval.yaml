@@ -1,73 +1,80 @@
-name: Test Approval Deployment Trigger
+ name: Test Approval Deployment Trigger
 
-on:
-  deployment_status:
+ on:
+   deployment_status:
 
-jobs:
-  test-trigger:
-    runs-on: ubuntu-latest
-    concurrency:
+ jobs:
+   test-trigger:
+     runs-on: ubuntu-latest
+     concurrency:
        group: deploy-prod-${{ github.event.deployment.id }}
        cancel-in-progress: true
-    if: |
-     github.event.deployment.environment == 'prod' &&
-     github.event.deployment_status.state == 'success'
-    steps:
-      - name: Log deployment approval info
-        run: |
-          echo "🎉 Prod environment deployment approved and started!"
-          echo "Environment: ${{ github.event.deployment.environment }}"
-          echo "Deployment ID: ${{ github.event.deployment.id }}"
-          echo "Status: ${{ github.event.deployment_status.state }}"
-          echo "Approved_By: ${{ github.event.deployment.creator.login }}"
-          echo "Ref: ${{ github.event.deployment.ref }}"
-          echo "SHA: ${{ github.event.deployment.sha }}"
-      
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.deployment.sha }}
-          fetch-depth: 0
-      
-      - name: Get deployment information
-        id: deploy-info
-        run: |
-          echo "commit_sha=${{ github.event.deployment.sha }}" >> $GITHUB_OUTPUT
-          echo "commit_message=$(git log -1 --pretty=%B | head -n 1)" >> $GITHUB_OUTPUT
-          echo "commit_author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
-          echo "commit_url=https://github.com/${{ github.repository }}/commit/${{ github.event.deployment.sha }}" >> $GITHUB_OUTPUT
-          echo "branch=${{ github.event.deployment.ref }}" >> $GITHUB_OUTPUT
-      - name: Show all deployment info
-        run: |
-          echo "╔═══════════════════════════════════════╗"
-          echo "║   DEPLOYMENT TRIGGER TEST             ║"
-          echo "╚═══════════════════════════════════════╝"
-          echo ""
-          echo "✅ Workflow triggered successfully!"
-          echo ""
-          echo "📋 Deployment Details:"
-          echo "  Environment: ${{ github.event.deployment.environment }}"
-          echo "  Deployment ID: ${{ github.event.deployment.id }}"
-          echo "  Status: ${{ github.event.deployment_status.state }}"
-          echo "  Creator: ${{ github.event.deployment.creator.login }}"
-          echo "  Ref: ${{ github.event.deployment.ref }}"
-          echo "  SHA: ${{ github.event.deployment.sha }}"
-          echo ""
-          echo "🔍 Full Event Context:"
-          echo '${{ toJSON(github.event) }}'
-          echo ""
-          echo "╔═══════════════════════════════════════╗"
-          echo "║   TEST PASSED ✓                       ║"
-          echo "╚═══════════════════════════════════════╝"
-      
-      - name: Check if prod environment
-        if: github.event.deployment.environment == 'prod'
-        run: |
-          echo "🎯 This is a PROD deployment!"
-          echo "   Status: ${{ github.event.deployment_status.state }}"
-      
-      - name: Check if NOT prod environment
-        if: github.event.deployment.environment != 'prod'
-        run: |
-          echo "ℹ️  This is NOT a prod deployment"
-          echo "   Environment: ${{ github.event.deployment.environment }}"
+     if: |
+       github.event.deployment.environment == 'prod' &&
+       github.event.deployment_status.state == 'success'
+     steps:
+       - name: Log deployment approval info
+         run: |
+           echo "🎉 Prod environment deployment approved and started!"
+           echo "Environment: ${{ github.event.deployment.environment }}"
+           echo "Deployment ID: ${{ github.event.deployment.id }}"
+           echo "Status: ${{ github.event.deployment_status.state }}"
+           echo "Creator (deployment trigger, not approver): ${{ github.event.deployment.creator.login }}"
+           echo "Ref: ${{ github.event.deployment.ref }}"
+           echo "SHA: ${{ github.event.deployment.sha }}"
+
+       - name: Checkout code
+         uses: actions/checkout@v4
+         with:
+           ref: ${{ github.event.deployment.sha }}
+           fetch-depth: 0
+
+       - name: Get deployment information
+         id: deploy-info
+         run: |
+           echo "commit_sha=${{ github.event.deployment.sha }}" >> $GITHUB_OUTPUT
+           echo "commit_message=$(git log -1 --pretty=%B | head -n 1)" >> $GITHUB_OUTPUT
+           echo "commit_author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+           echo "commit_url=https://github.com/${{ github.repository }}/commit/${{ github.event.deployment.sha }}" >> $GITHUB_OUTPUT
+           echo "branch=${{ github.event.deployment.ref }}" >> $GITHUB_OUTPUT
+
+       - name: Show all deployment info
+         env:
+           COMMIT_MESSAGE: ${{ steps.deploy-info.outputs.commit_message }}
+           COMMIT_AUTHOR: ${{ steps.deploy-info.outputs.commit_author }}
+         run: |
+           echo "╔═══════════════════════════════════════╗"
+           echo "║   DEPLOYMENT TRIGGER TEST             ║"
+           echo "╚═══════════════════════════════════════╝"
+           echo ""
+           echo "✅ Workflow triggered successfully!"
+           echo ""
+           echo "📋 Deployment Details:"
+           echo "  Environment: ${{ github.event.deployment.environment }}"
+           echo "  Deployment ID: ${{ github.event.deployment.id }}"
+           echo "  Status: ${{ github.event.deployment_status.state }}"
+           echo "  Creator (not approver): ${{ github.event.deployment.creator.login }}"
+           echo "  Ref: ${{ github.event.deployment.ref }}"
+           echo "  SHA: ${{ github.event.deployment.sha }}"
+           echo "  Commit Message: $COMMIT_MESSAGE"
+           echo "  Commit Author: $COMMIT_AUTHOR"
+           echo "  Deployment URL: ${{ github.event.deployment_status.target_url || 'N/A' }}"
+           echo ""
+           echo "🔍 Full Event Context:"
+           echo '${{ toJSON(github.event) }}'
+           echo ""
+           echo "╔═══════════════════════════════════════╗"
+           echo "║   TEST PASSED ✓                       ║"
+           echo "╚═══════════════════════════════════════╝"
+
+       - name: Check if prod environment
+         if: github.event.deployment.environment == 'prod'
+         run: |
+           echo "🎯 This is a PROD deployment!"
+           echo "   Status: ${{ github.event.deployment_status.state }}"
+
+       - name: Check if NOT prod environment
+         if: github.event.deployment.environment != 'prod'
+         run: |
+           echo "ℹ️  This is NOT a prod deployment"
+           echo "   Environment: ${{ github.event.deployment.environment }}"
