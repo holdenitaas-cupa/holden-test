@@ -9,9 +9,7 @@
      concurrency:
        group: deploy-prod-${{ github.event.deployment.id }}
        cancel-in-progress: true
-     if: |
-       github.event.deployment.environment == 'prod' &&
-       github.event.deployment_status.state == 'success'
+     if: github.event.deployment.environment == 'prod' && github.event.deployment_status.state == 'success'
      steps:
        - name: Log deployment approval info
          run: |
