@@ -6,7 +6,7 @@
  jobs:
    test-trigger:
      runs-on: ubuntu-latest
-     if: github.event.deployment.environment == 'prod' && github.event.deployment_status.state == 'in-progress'
+     if: github.event.deployment.environment == 'prod' && github.event.deployment_status.state == 'in_progress'
      steps:
        - name: Log deployment approval info
          run: |
