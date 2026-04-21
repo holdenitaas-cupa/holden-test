@@ -13,7 +13,7 @@ jobs:
 
     steps:
         - name: Say hello
-          run: echo "✅ GitHub Actions is working!"
+          run: echo "✅ GitHub Actions is working on dev!"
 
         - name: Show date and time
           run: date
@@ -33,7 +33,7 @@ jobs:
 
     steps:
         - name: Say hello
-          run: echo "✅ GitHub Actions is working!"
+          run: echo "✅ GitHub Actions is working on qa!"
 
         - name: Show date and time
           run: date
@@ -53,7 +53,7 @@ jobs:
 
     steps:
         - name: Say hello
-          run: echo "✅ GitHub Actions is working!"
+          run: echo "✅ GitHub Actions is working on stage!"
 
         - name: Show date and time
           run: date
