@@ -6,10 +6,70 @@ on:
     branches: [main]
 
 jobs:
+  deploy_dev:
+    name: Deploy to dev
+    runs-on: ubuntu-latest
+    environment: dev  # no approval required
+
+    steps:
+        - name: Say hello
+          run: echo "✅ GitHub Actions is working!"
+
+        - name: Show date and time
+          run: date
+
+        - name: Show environment
+          run: |
+            echo "Runner OS: ${{ runner.os }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref }}"
+            echo "Triggered by: ${{ github.actor }}"
+
+  deploy_qa:
+    name: Deploy to qa
+    runs-on: ubuntu-latest
+    environment: qa
+    needs: deploy_dev
+
+    steps:
+        - name: Say hello
+          run: echo "✅ GitHub Actions is working!"
+
+        - name: Show date and time
+          run: date
+
+        - name: Show environment
+          run: |
+            echo "Runner OS: ${{ runner.os }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref }}"
+            echo "Triggered by: ${{ github.actor }}"
+
+  deploy_stage:
+    name: Deploy to stage
+    runs-on: ubuntu-latest
+    environment: stage
+    needs: deploy_qa
+
+    steps:
+        - name: Say hello
+          run: echo "✅ GitHub Actions is working!"
+
+        - name: Show date and time
+          run: date
+
+        - name: Show environment
+          run: |
+            echo "Runner OS: ${{ runner.os }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref }}"
+            echo "Triggered by: ${{ github.actor }}"
+
   deploy_prod:
     name: Deploy to prod
     runs-on: ubuntu-latest
     environment: prod
+    needs: deploy_stage
 
     steps:
         - name: Say hello
