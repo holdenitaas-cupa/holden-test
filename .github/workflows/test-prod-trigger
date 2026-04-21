@@ -1,0 +1,76 @@
+name: Call Central Deployment Tracker On Approval
+
+on:
+  deployment_status:
+
+jobs:  
+  notify-central:   
+    runs-on: ubuntu-latest
+    if: |
+      github.event.deployment.environment == 'prod' && 
+      github.event.deployment_status.state == 'in_progress'
+    
+    steps:      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+          fetch-depth: 0
+      
+      - name: Get deployment information
+        id: deploy-info
+        run: |
+          echo "commit_sha=${{ github.event.deployment.sha }}" >> $GITHUB_OUTPUT
+          echo "commit_message=$(git log -1 --pretty=%B | head -n 1)" >> $GITHUB_OUTPUT
+          echo "commit_author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+          echo "commit_url=https://github.com/${{ github.repository }}/commit/${{ github.event.deployment.sha }}" >> $GITHUB_OUTPUT
+          echo "branch=${{ github.event.deployment.ref }}" >> $GITHUB_OUTPUT
+      
+      - name: Send deployment event to central repository
+        uses: actions/github-script@v7
+        with:  
+          github-token: ${{ secrets.GH_PAT_FOR_SRE_GITHUB_DEPLOYMENT_TRACK_AND_NOTIF }}
+          script: |
+            console.log('═══════════════════════════════════════');
+            console.log('Sending Deployment Notification');
+            console.log('═══════════════════════════════════════');
+            console.log('Source:', `${context.repo.owner}/${context.repo.repo}`);
+            console.log('Environment:', '${{ github.event.deployment.environment }}');
+            console.log('Branch:', '${{ steps.deploy-info.outputs.branch }}');
+            console.log('Commit SHA:', '${{ steps.deploy-info.outputs.commit_sha }}');
+            console.log('Commit Author:', '${{ steps.deploy-info.outputs.commit_author }}');
+            console.log('Commit Message:', '${{ steps.deploy-info.outputs.commit_message }}');
+            console.log('Approved_By:', '${{ github.event.deployment.creator.login }}');
+            console.log('Deployment Status:', '${{ github.event.deployment_status.state }}');
+            console.log('───────────────────────────────────────');
+            
+            try {
+              await github.rest.repos.createDispatchEvent({
+                owner: 'ELTTechnology',
+                repo: 'workflow-commons',
+                event_type: 'production',
+                client_payload: {
+                  source_repo: context.repo.repo,
+                  source_owner: context.repo.owner,
+                  environment: '${{ github.event.deployment.environment }}',
+                  branch: '${{ steps.deploy-info.outputs.branch }}',
+                  commit_sha: '${{ steps.deploy-info.outputs.commit_sha }}',
+                  commit_author: '${{ steps.deploy-info.outputs.commit_author }}',
+                  commit_message: '${{ steps.deploy-info.outputs.commit_message }}',
+                  commit_url: '${{ steps.deploy-info.outputs.commit_url }}',
+                  approved_by: '${{ github.event.deployment.creator.login }}',
+                  deployment_id: '${{ github.event.deployment.id }}',
+                  deployment_status: '${{ github.event.deployment_status.state }}',
+                  deployment_url: '${{ github.event.deployment_status.target_url }}',
+                  timestamp: new Date().toISOString()
+                }
+              });
+              
+              console.log('✓ SUCCESS: Notified central tracker repository');
+              console.log('═══════════════════════════════════════');
+            } catch (error) {
+              console.error('✗ ERROR: Failed to notify central tracker repository');
+              console.error('Error:', error.message);
+              console.error('Stack:', error.stack);
+              core.setFailed(`Failed to notify central repository: ${error.message}`);
+            }
