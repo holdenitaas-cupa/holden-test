@@ -2,6 +2,23 @@ name: Call Central Deployment Tracker On Approval
 
 on:
   deployment_status:
+  workflow_call:
+    inputs:
+      APPLICATION_NAME:
+        type: string
+        required: true
+      STACK_NAME:
+        type: string
+        required: true
+      ENVIRONMENT:
+        type: string
+        required: true
+      NOTIFICATION_DESTINATION:
+        type: string
+        required: true
+      STATUS:
+        type: string
+        required: true
 
 jobs:  
   notify-central:   
