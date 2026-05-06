@@ -70,6 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     needs: deploy_stage
+    permissions:
+      contents: write
 
     steps:
         - name: Notify deployment starting
