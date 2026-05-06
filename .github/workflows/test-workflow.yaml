@@ -24,11 +24,6 @@ jobs:
             echo "Repository: ${{ github.repository }}"
             echo "Branch: ${{ github.ref }}"
             echo "Triggered by: ${{ github.actor }}"
-        - name: Wait 60 Seconds
-          uses: GuillaumeFalourd/wait-sleep-action@v1
-          with:
-            time: '60'
-
   deploy_qa:
     name: Deploy to qa
     runs-on: ubuntu-latest
@@ -49,10 +44,6 @@ jobs:
             echo "Branch: ${{ github.ref }}"
             echo "Triggered by: ${{ github.actor }}"
 
-        - name: Wait 60 Seconds
-          uses: GuillaumeFalourd/wait-sleep-action@v1
-          with:
-            time: '60'
 
   deploy_stage:
     name: Deploy to stage
@@ -73,10 +64,6 @@ jobs:
             echo "Repository: ${{ github.repository }}"
             echo "Branch: ${{ github.ref }}"
             echo "Triggered by: ${{ github.actor }}"
-        - name: Wait 60 Seconds
-          uses: GuillaumeFalourd/wait-sleep-action@v1
-          with:
-            time: '60'
 
   deploy_prod:
     name: Deploy to prod
