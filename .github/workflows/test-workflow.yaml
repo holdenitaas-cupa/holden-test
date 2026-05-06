@@ -85,6 +85,25 @@ jobs:
     needs: deploy_stage
 
     steps:
+        - name: Notify deployment starting
+          uses: actions/github-script@v7
+          with:
+            script: |
+              await github.rest.repos.createDispatchEvent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                event_type: 'deployment_starting',
+                client_payload: {
+                  application_name: 'holden-test',
+                  stack_name: 'stack-holden-test',
+                  environment: 'Production',
+                  notification_destination: 'holden.ita-as@cambridge.org',
+                  status: 'in_progress',
+                  actor: context.actor,
+                  run_id: context.runId.toString()
+                }
+              });
+
         - name: Say hello
           run: echo "✅ GitHub Actions is working!"
 
@@ -98,15 +117,15 @@ jobs:
             echo "Branch: ${{ github.ref }}"
             echo "Triggered by: ${{ github.actor }}"
             
-  broadcast_status:
-      name: Broadcast Status
-      needs: deploy_prod
-      uses: ./.github/workflows/test-prod-trigger.yaml
-      if: ${{ always() && needs.deploy_prod.result != 'skipped' && needs.deploy_prod.result != 'cancelled' }}
-      with:
-        APPLICATION_NAME: holden-test
-        STACK_NAME: stack-holden-test
-        ENVIRONMENT: Production
-        NOTIFICATION_DESTINATION: holden.ita-as@cambridge.org
-        STATUS: ${{ needs.deploy_prod.result }}
-      secrets: inherit
+  # broadcast_status:
+  #     name: Broadcast Status
+  #     needs: deploy_prod
+  #     uses: ./.github/workflows/test-prod-trigger.yaml
+  #     if: always() && needs.deploy_prod.result != 'skipped' && needs.deploy_prod.result != 'cancelled'
+  #     with:
+  #       APPLICATION_NAME: holden-test
+  #       STACK_NAME: stack-holden-test
+  #       ENVIRONMENT: Production
+  #       NOTIFICATION_DESTINATION: holden.ita-as@cambridge.org
+  #       STATUS: ${{ needs.deploy_prod.result }}
+  #     secrets: inherit
