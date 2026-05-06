@@ -101,7 +101,7 @@ jobs:
   broadcast_status:
       name: Broadcast Status
       needs: deploy_prod
-      uses: ./.github/workflows/test-prod-trigger.yml
+      uses: ./.github/workflows/test-prod-trigger.yaml
       if: ${{ always() && needs.deploy_prod.result != 'skipped' && needs.deploy_prod.result != 'cancelled' }}
       with:
         APPLICATION_NAME: holden-test
