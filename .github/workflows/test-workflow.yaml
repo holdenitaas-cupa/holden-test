@@ -24,6 +24,13 @@ jobs:
             echo "Repository: ${{ github.repository }}"
             echo "Branch: ${{ github.ref }}"
             echo "Triggered by: ${{ github.actor }}"
+            
+        - name: Upload artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: puppeteer-report
+            path: report.json
+
   deploy_qa:
     name: Deploy to qa
     runs-on: ubuntu-latest
